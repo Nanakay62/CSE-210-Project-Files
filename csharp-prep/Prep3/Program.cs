@@ -8,7 +8,7 @@ class Program
 
     static void Main(string[] args)
     {
-        Console.WriteLine("Hello Prep3 World!");
+        Console.WriteLine("Hello there!");
 
        Random randomNumber  = new Random();
        int magicNumber = randomNumber.Next(1,99);
