@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using System.IO; // Added for file I/O
+using System.IO;
 using System.Text.Json;
+
 public class EternalQuest
 {
   private List<Goal> Goals { get; set; }
@@ -17,18 +18,18 @@ public class EternalQuest
     Goals.Add(goal);
   }
 
-  public void RecordEvent(string goalName)
-{
-  foreach (Goal goal in Goals)
+  public void RecordEvent(int goalNumber)
   {
-    if (goal.Name == goalName)
+    if (goalNumber < 1 || goalNumber > Goals.Count)
     {
-      goal.RecordEvent();
-      Score += goal.GetPoints();
-      break;
+      Console.WriteLine("Invalid goal number. Please try again.");
+      return;
     }
+
+    Goal goal = Goals[goalNumber - 1];
+    goal.RecordEvent();
+    Score += goal.GetPoints();
   }
-}
 
   public int GetScore()
   {
@@ -40,36 +41,70 @@ public class EternalQuest
     return Goals;
   }
 
-
-  /// <param name="filename">The name of the file to save to.</param>
   public void Save(string filename)
-{
-    // Serialize the goals and score to a JSON string
-    string data = JsonSerializer.Serialize(this);
-
-    // Write the serialized data to the file
-    File.WriteAllText(filename, data);
-}
-
-public void Load(string filename)
-{
-  if (!File.Exists(filename))
   {
-    Console.WriteLine("The file you're trying to load does not exist.");
-    return;
+    using (StreamWriter file = new StreamWriter(filename))
+    {
+      file.WriteLine(Score);
+      foreach (Goal goal in Goals)
+      {
+        string goalType = goal.GetType().Name;
+        string goalData = JsonSerializer.Serialize(goal);
+        file.WriteLine($"{goalType}:{goalData}");
+      }
+    }
   }
 
-  try
+  public void Load(string filename)
   {
-    string data = File.ReadAllText(filename);
-    EternalQuest loadedQuest = JsonSerializer.Deserialize<EternalQuest>(data);
-    this.Goals = loadedQuest.Goals;
-    this.Score = loadedQuest.Score;
-    Console.WriteLine("Progress loaded!");
+    if (!File.Exists(filename))
+    {
+      Console.WriteLine("The file you're trying to load does not exist.");
+      return;
+    }
+
+    try
+    {
+      using (StreamReader file = new StreamReader(filename))
+      {
+        Score = int.Parse(file.ReadLine());
+        Goals.Clear();
+        string line;
+        while ((line = file.ReadLine()) != null)
+        {
+          string[] parts = line.Split(':', 2);
+          string goalType = parts[0];
+          string goalData = parts[1];
+          Goal goal = null;
+          switch (goalType)
+          {
+            case nameof(SimpleGoal):
+              goal = JsonSerializer.Deserialize<SimpleGoal>(goalData);
+              break;
+            case nameof(EternalGoal):
+              goal = JsonSerializer.Deserialize<EternalGoal>(goalData);
+              break;
+            case nameof(ChecklistGoal):
+              goal = JsonSerializer.Deserialize<ChecklistGoal>(goalData);
+              break;
+            case nameof(ProgressGoal):
+              goal = JsonSerializer.Deserialize<ProgressGoal>(goalData);
+              break;
+            case nameof(NegativeGoal):
+              goal = JsonSerializer.Deserialize<NegativeGoal>(goalData);
+              break;
+          }
+          if (goal != null)
+          {
+            Goals.Add(goal);
+          }
+        }
+      }
+      Console.WriteLine("Progress loaded!");
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine($"An error occurred while loading progress: {e.Message}");
+    }
   }
-  catch (Exception e)
-  {
-    Console.WriteLine($"An error occurred while loading progress: {e.Message}");
-  }
-}
 }

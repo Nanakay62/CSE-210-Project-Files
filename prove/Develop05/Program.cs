@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 class Program
 {
@@ -17,13 +20,12 @@ class Program
     while (true)
     {
       Console.WriteLine("\nEternal Quest Menu:");
-      Console.WriteLine("1. Add Goal");
-      Console.WriteLine("2. Record Event");
-      Console.WriteLine("3. View Goals");
-      Console.WriteLine("4. View Score");
-      Console.WriteLine("5. Save Progress");
-      Console.WriteLine("6. Load Progress");
-      Console.WriteLine("7. Exit");
+      Console.WriteLine("1. Create New Goal");
+      Console.WriteLine("2. List Goals");
+      Console.WriteLine("3. Save Goals");
+      Console.WriteLine("4. Load Goals");
+      Console.WriteLine("5. Record Event");
+      Console.WriteLine("6. Quit");
       Console.Write("Enter your choice: ");
 
       string choice = Console.ReadLine();
@@ -34,27 +36,24 @@ class Program
           AddGoal(quest);
           break;
         case "2":
-          RecordEvent(quest); // Added method call
+          ViewGoals(quest);
           break;
         case "3":
-          ViewGoals(quest); // Added method call
-          break;
-        case "4":
-          Console.WriteLine($"Current Score: {quest.GetScore()}");
-          break;
-        case "5":
           Console.Write("Enter filename to save: ");
           string saveFile = Console.ReadLine();
           quest.Save(saveFile);
           Console.WriteLine("Progress saved!");
           break;
-        case "6":
+        case "4":
           Console.Write("Enter filename to load: ");
           string loadFile = Console.ReadLine();
           quest.Load(loadFile);
           Console.WriteLine("Progress loaded!");
           break;
-        case "7":
+        case "5":
+          RecordEvent(quest);
+          break;
+        case "6":
           Console.WriteLine("Exiting Eternal Quest...");
           return;
         default:
@@ -66,41 +65,65 @@ class Program
 
   static void AddGoal(EternalQuest quest)
   {
-     Console.Write("Enter the name of your goal: ");
-  string goalName = Console.ReadLine();
+    Console.WriteLine("The goal types are:");
+    Console.WriteLine("1. Simple goal");
+    Console.WriteLine("2. Eternal goal");
+    Console.WriteLine("3. Checklist goal");
+    Console.Write("Which type of goal would you like to create? ");
 
-  Console.Write("Enter the description of your goal: ");
-  string goalDescription = Console.ReadLine();
+    string goalType = Console.ReadLine();
 
-  Console.Write("Enter the score of your goal: ");
-  int goalScore = int.Parse(Console.ReadLine());
+    Console.Write("Enter the name of your goal: ");
+    string goalName = Console.ReadLine();
 
-  quest.AddGoal(new SimpleGoal(goalName, goalDescription, goalScore));
+    Console.Write("Enter the description of your goal: ");
+    string goalDescription = Console.ReadLine();
+
+    Console.Write("Enter the score of your goal: ");
+    int goalScore = int.Parse(Console.ReadLine());
+
+    switch (goalType)
+    {
+      case "1":
+        quest.AddGoal(new SimpleGoal(goalName, goalDescription, goalScore));
+        break;
+      case "2":
+        quest.AddGoal(new EternalGoal(goalName, goalDescription, goalScore));
+        break;
+      case "3":
+        Console.Write("Enter the target completions of your goal: ");
+        int targetCompletions = int.Parse(Console.ReadLine());
+        Console.Write("Enter the bonus points of your goal: ");
+        int bonusPoints = int.Parse(Console.ReadLine());
+        quest.AddGoal(new ChecklistGoal(goalName, goalDescription, goalScore, targetCompletions, bonusPoints));
+        break;
+      default:
+        Console.WriteLine("Invalid choice. Please try again.");
+        break;
+    }
   }
 
-
-  /// <param name="quest">The EternalQuest object to record the event for.</param>
   static void RecordEvent(EternalQuest quest)
   {
-    Console.Write("Enter the name of the goal you completed: ");
-    string goalName = Console.ReadLine();
-    quest.RecordEvent(goalName); // Call RecordEvent on the EternalQuest object
+    Console.Write("Which goal did you accomplish? ");
+    int goalNumber = int.Parse(Console.ReadLine());
+    Goal goal = quest.GetGoals()[goalNumber - 1];
+    quest.RecordEvent(goalNumber);
+    Console.WriteLine($"Congratulations! You have earned {goal.GetPoints()} points!");
+    Console.WriteLine($"You now have {quest.GetScore()} points.");
   }
-  /// <param name="quest">The EternalQuest object containing the goals.</param>
+
   static void ViewGoals(EternalQuest quest)
   {
     Console.WriteLine("\nYour Goals:");
+    int goalNumber = 1;
     foreach (Goal goal in quest.GetGoals())
     {
-      Console.WriteLine($"- {goal.Name} ({goal.Description})");
-      if (goal.IsCompleted())
-      {
-        Console.WriteLine("  Completed!");
-      }
-      else
-      {
-        Console.WriteLine("  Not completed.");
-      }
+      string checkmark = goal.IsCompleted() ? "[x]" : "[ ]";
+      string completions = goal is ChecklistGoal ? $" -- Currently completed: {((ChecklistGoal)goal).Completions}/{((ChecklistGoal)goal).TargetCompletions}" : "";
+      Console.WriteLine($"{goalNumber}. {checkmark} {goal.Name} ({goal.Description}){completions}");
+      goalNumber++;
     }
+    Console.WriteLine($"You now have {quest.GetScore()} points.");
   }
 }

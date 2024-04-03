@@ -1,8 +1,13 @@
 public class ChecklistGoal : Goal
 {
-    public int TargetCompletions { get; private set; }
-    public int BonusPoints { get; private set; }
-    public int Completions { get; private set; }
+    public int TargetCompletions { get; set; }
+    public int BonusPoints { get; set; }
+    public int Completions { get; set; }
+
+    // Parameterless constructor for deserialization
+    public ChecklistGoal() : base("", "", 0)
+    {
+    }
 
     public ChecklistGoal(string name, string description, int pointsPerEvent, int targetCompletions, int bonusPoints) : base(name, description, pointsPerEvent)
     {
