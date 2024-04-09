@@ -12,11 +12,11 @@ class Program
             new Lecture
             {
                 Title = "Lecture on C#",
-                Description = "An in-depth look at C# and .NET",
+                Description = "An in-depth look at encapsulation, abstraction and polymorphism",
                 Date = DateTime.Today.AddDays(7),
                 Time = new TimeSpan(18, 0, 0),
-                Address = new Address { Street = "123 Main St", City = "Anytown", State = "NY", Country = "USA" },
-                Speaker = "John Doe",
+                Address = new Address { Street = "14 Akrama Street", City = "JamesTown", State = "NY", Country = "USA" },
+                Speaker = "Nana Dickson",
                 Capacity = 100
             },
             new Reception
@@ -25,8 +25,8 @@ class Program
                 Description = "A chance to network with industry professionals",
                 Date = DateTime.Today.AddDays(14),
                 Time = new TimeSpan(19, 0, 0),
-                Address = new Address { Street = "456 Elm St", City = "Othertown", State = "NY", Country = "USA" },
-                RSVPEmail = "rsvp@example.com"
+                Address = new Address { Street = "156 Elm St", City = "Cape Town", State = "CT", Country = "South Africa" },
+                RSVPEmail = "rsvp@gmail.com"
             },
             new OutdoorGathering
             {
@@ -34,7 +34,7 @@ class Program
                 Description = "A fun day out for the whole family",
                 Date = DateTime.Today.AddDays(21),
                 Time = new TimeSpan(12, 0, 0),
-                Address = new Address { Street = "789 Pine St", City = "Sometown", State = "NY", Country = "USA" },
+                Address = new Address { Street = "789 Pine St", City = "Sandton", State = "JB", Country = "South Africa" },
                 WeatherForecast = "Sunny with a high of 75"
             }
         };
